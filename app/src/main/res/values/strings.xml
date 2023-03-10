@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Magenta</string>
+
+    <!--Errors msg-->
+    <string name="err_req_mes">Что-то пошло не так. Попробуйте позже…</string>
+    <string name="err_bt_snack_bar_text">Ещё</string>
+
+    <!--Fragment Labels-->
+    <string name="fragment_image_list_label">Все картинки</string>
+    <string name="fragment_image_favorite_label">Любимые картинки</string>
+
 </resources>
