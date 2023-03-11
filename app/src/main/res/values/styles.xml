@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Icon button styles -->
+    <style name="Widget.AppTheme.LikeCheckBox" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="iconTint">@color/like_checkbox_tint</item>
+        <item name="android:minWidth">@dimen/icon_button_min_size</item>
+        <item name="android:minHeight">@dimen/icon_button_min_size</item>
+    </style>
+
+    <!-- Default text styles -->
+    <style name="CustomTextView" parent="android:Widget.TextView">
+        <item name="android:textSize">@dimen/default_text_size</item>
+        <item name="fontFamily">@font/banty_bold</item>
+    </style>
+</resources>

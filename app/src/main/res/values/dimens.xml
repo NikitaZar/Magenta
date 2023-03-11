@@ -19,4 +19,8 @@
     <dimen name="space96x">384dp</dimen>
 
     <dimen name="card_image_height">150dp</dimen>
+    <dimen name="icon_button_min_size">48dp</dimen>
+
+    <dimen name="default_text_size">20sp</dimen>
+    <dimen name="favorite_list_empty_text_size">20sp</dimen>
 </resources>

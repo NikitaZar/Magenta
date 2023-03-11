@@ -9,4 +9,6 @@
     <string name="fragment_image_list_label">Все картинки</string>
     <string name="fragment_image_favorite_label">Любимые картинки</string>
 
+    <string name="favorite_list_is_empty_text">Пока что пусто…</string>
+
 </resources>

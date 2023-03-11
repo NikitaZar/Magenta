@@ -33,8 +33,7 @@ class ImageRepositoryImpl @Inject constructor(
         ),
         remoteMediator = mediator,
         pagingSourceFactory = { dao.getAll() }
-    )
-        .flow
+    ).flow
         .map { pagingData -> pagingData.map(ImageEntity::toDto) }
         .flowOn(Dispatchers.IO)
 

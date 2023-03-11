@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.nikitazar.domain.models.Image
 import ru.nikitazar.magenta.databinding.CardImageBinding
@@ -13,9 +14,22 @@ interface ImageOnInteractionListener {
     fun onLike(image: Image)
 }
 
-class ImageAdapter(
+class PageImageAdapter(
     private val onInteractionListener: ImageOnInteractionListener
 ) : PagingDataAdapter<Image, ImageViewHolder>(ImageDiffCallback()) {
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        getItem(position)?.let { holder.bind(it) }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val binding = CardImageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ImageViewHolder(binding, onInteractionListener)
+    }
+}
+
+class ImageAdapter(
+    private val onInteractionListener: ImageOnInteractionListener
+) : ListAdapter<Image, ImageViewHolder>(ImageDiffCallback()) {
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         getItem(position)?.let { holder.bind(it) }
     }
@@ -33,8 +47,11 @@ class ImageViewHolder(
     fun bind(image: Image) {
         binding.image.load(image.downloadUrl)
         binding.author.text = image.author
+        binding.btLike.isChecked = image.isFavorite
 
-//        onInteractionListener.onLike(image) TODO
+        binding.btLike.setOnClickListener {
+            onInteractionListener.onLike(image)
+        }
     }
 }
 

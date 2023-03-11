@@ -22,13 +22,30 @@
             android:src="@color/purple_500" />
 
 
-        <TextView
-            android:id="@+id/author"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:padding="@dimen/common_spacing"
-            tools:text="text" />
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/space4x">
 
+            <TextView
+                android:id="@+id/author"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/icon_button_min_size"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                tools:text="text" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_like"
+                style="@style/Widget.AppTheme.LikeCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                app:icon="@drawable/ic_like" />
+
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

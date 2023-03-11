@@ -28,16 +28,18 @@ class ImageRepositoryMediator @Inject constructor(
 
         val limit = state.config.pageSize
         val lastIndex = remoteKeyDao.max() ?: 0
+        Log.e("Mediator", "lastIndex=$lastIndex")
         val pageIndex = getPageIndex(
             loadType = loadType,
             lastIndex = lastIndex
         ) ?: return MediatorResult.Success(true)
 
         return try {
-            val list = loadPage(pageIndex, limit)
+            val list: List<ImageEntity>
             when (loadType) {
                 LoadType.REFRESH -> {
-                    imageDao.refresh(list)
+                    Log.e("Mediator", "pageIndex=$pageIndex limit=$limit")
+                    list = loadPage(0, lastIndex + limit)
                     if (remoteKeyDao.isEmpty()) {
                         remoteKeyDao.insert(
                             ImageRemoteKeyEntity(
@@ -48,7 +50,7 @@ class ImageRepositoryMediator @Inject constructor(
                     }
                 }
                 else -> {
-                    imageDao.insert(list)
+                    list = loadPage(pageIndex, limit)
                     remoteKeyDao.insert(
                         ImageRemoteKeyEntity(
                             type = ImageRemoteKeyEntity.KeyType.AFTER,
@@ -57,8 +59,8 @@ class ImageRepositoryMediator @Inject constructor(
                     )
                 }
             }
-
-            MediatorResult.Success(list.size < limit)
+            imageDao.insert(list)
+            MediatorResult.Success(list.isEmpty())
         } catch (e: Exception) {
             Log.e("Mediator error", e.message.toString())
             MediatorResult.Error(e)
@@ -67,7 +69,7 @@ class ImageRepositoryMediator @Inject constructor(
 
     private fun getPageIndex(loadType: LoadType, lastIndex: Int): Int? =
         when (loadType) {
-            LoadType.REFRESH -> lastIndex
+            LoadType.REFRESH -> 0
             LoadType.PREPEND -> null
             LoadType.APPEND -> lastIndex + 1
         }

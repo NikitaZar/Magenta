@@ -16,12 +16,6 @@ interface ImageDao {
     @Query("SELECT * FROM ImageEntity")
     fun getAll(): PagingSource<Int, ImageEntity>
 
-    @Transaction
-    suspend fun refresh(list: List<ImageEntity>) {
-        removeAll()
-        insert(list)
-    }
-
     @Query("DELETE FROM ImageEntity")
     suspend fun removeAll()
 

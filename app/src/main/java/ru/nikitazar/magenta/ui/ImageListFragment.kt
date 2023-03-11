@@ -1,10 +1,12 @@
 package ru.nikitazar.magenta.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
@@ -14,7 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 import ru.nikitazar.domain.models.Image
 import ru.nikitazar.magenta.R
 import ru.nikitazar.magenta.databinding.FragmentImageListBinding
-import ru.nikitazar.magenta.ui.adapters.ImageAdapter
+import ru.nikitazar.magenta.ui.adapters.PageImageAdapter
 import ru.nikitazar.magenta.ui.adapters.ImageOnInteractionListener
 import ru.nikitazar.magenta.ui.adapters.PageLoadStateAdapter
 import ru.nikitazar.magenta.viewModel.ImageListViewModel
@@ -32,12 +34,13 @@ class ImageListFragment : Fragment() {
         binding = FragmentImageListBinding.inflate(inflater, container, false)
 
         setupList()
+        onBackPressed()
 
         return binding.root
     }
 
     private fun setupList() {
-        val adapter = ImageAdapter(object : ImageOnInteractionListener {
+        val adapter = PageImageAdapter(object : ImageOnInteractionListener {
             override fun onLike(image: Image) {
                 when (image.isFavorite) {
                     true -> viewModel.dislike(image.id)
@@ -53,14 +56,14 @@ class ImageListFragment : Fragment() {
         observeErrors(adapter)
     }
 
-    private fun observeImages(adapter: ImageAdapter) = lifecycleScope.launchWhenCreated {
+    private fun observeImages(adapter: PageImageAdapter) = lifecycleScope.launchWhenCreated {
         viewModel.pageDataFlow.collectLatest { pagingData ->
-            adapter.submitData(pagingData)
+            adapter.submitData(lifecycle, pagingData)
             binding.swipeRefresh.isRefreshing = false
         }
     }
 
-    private fun observeErrors(adapter: ImageAdapter) {
+    private fun observeErrors(adapter: PageImageAdapter) {
         adapter.addLoadStateListener {
             if (it.refresh is LoadState.Error) {
                 val errText = getString(R.string.err_req_mes)
@@ -72,9 +75,17 @@ class ImageListFragment : Fragment() {
         }
     }
 
-    private fun setupSwipeToRefresh(adapter: ImageAdapter) {
+    private fun setupSwipeToRefresh(adapter: PageImageAdapter) {
         binding.swipeRefresh.setOnRefreshListener {
             adapter.refresh()
         }
+    }
+
+    private fun onBackPressed() {
+        activity
+            ?.onBackPressedDispatcher
+            ?.addCallback(viewLifecycleOwner) {
+                activity?.finish()
+            }
     }
 }
