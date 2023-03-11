@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav"
-    app:startDestination="@id/imageListFragment">
+    app:startDestination="@id/splashFragment">
 
     <fragment
         android:id="@+id/imageListFragment"
@@ -20,4 +20,13 @@
         android:name="ru.nikitazar.magenta.ui.FavoriteFragment"
         android:label="@string/fragment_image_favorite_label"
         tools:layout="@layout/fragment_favorite" />
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="ru.nikitazar.magenta.ui.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" >
+        <action
+            android:id="@+id/action_splashFragment_to_imageListFragment"
+            app:destination="@id/imageListFragment" />
+    </fragment>
 </navigation>
