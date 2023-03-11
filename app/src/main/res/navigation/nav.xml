@@ -9,5 +9,15 @@
         android:id="@+id/imageListFragment"
         android:name="ru.nikitazar.magenta.ui.ImageListFragment"
         android:label="@string/fragment_image_list_label"
-        tools:layout="@layout/fragment_image_list" />
+        tools:layout="@layout/fragment_image_list" >
+        <action
+            android:id="@+id/action_imageListFragment_to_favoriteFragment"
+            app:destination="@id/favoriteFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/favoriteFragment"
+        android:name="ru.nikitazar.magenta.ui.FavoriteFragment"
+        android:label="@string/fragment_image_favorite_label"
+        tools:layout="@layout/fragment_favorite" />
 </navigation>
