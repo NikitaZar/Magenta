@@ -7,34 +7,55 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import ru.nikitazar.data.api.ApiService
 import ru.nikitazar.data.db.dao.ImageDao
+import ru.nikitazar.data.db.dao.ImageRemoteKeyDao
 import ru.nikitazar.data.db.entities.ImageEntity
+import ru.nikitazar.data.db.entities.ImageRemoteKeyEntity
 import ru.nikitazar.data.db.entities.toEntity
-import ru.nikitazar.data.errors.ApiError
 import ru.nikitazar.data.errors.NetworkError
 import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
 class ImageRepositoryMediator @Inject constructor(
     private val api: ApiService,
-    private val dao: ImageDao,
+    private val imageDao: ImageDao,
+    private val remoteKeyDao: ImageRemoteKeyDao,
 ) : RemoteMediator<Int, ImageEntity>() {
-
-    private var pageIndex = 0
 
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, ImageEntity>
     ): MediatorResult {
-        pageIndex = getPageIndex(loadType) ?: return MediatorResult.Success(true)
+
         val limit = state.config.pageSize
-        val page = pageIndex * limit
+        val lastIndex = remoteKeyDao.max() ?: 0
+        val pageIndex = getPageIndex(
+            loadType = loadType,
+            lastIndex = lastIndex
+        ) ?: return MediatorResult.Success(true)
 
         return try {
-            val list = loadPage(page, limit)
-            if (loadType == LoadType.REFRESH) {
-                dao.refresh(list)
-            } else {
-                dao.insert(list)
+            val list = loadPage(pageIndex, limit)
+            when (loadType) {
+                LoadType.REFRESH -> {
+                    imageDao.refresh(list)
+                    if (remoteKeyDao.isEmpty()) {
+                        remoteKeyDao.insert(
+                            ImageRemoteKeyEntity(
+                                type = ImageRemoteKeyEntity.KeyType.AFTER,
+                                index = pageIndex
+                            )
+                        )
+                    }
+                }
+                else -> {
+                    imageDao.insert(list)
+                    remoteKeyDao.insert(
+                        ImageRemoteKeyEntity(
+                            type = ImageRemoteKeyEntity.KeyType.AFTER,
+                            index = pageIndex
+                        )
+                    )
+                }
             }
 
             MediatorResult.Success(list.size < limit)
@@ -44,11 +65,11 @@ class ImageRepositoryMediator @Inject constructor(
         }
     }
 
-    private fun getPageIndex(loadType: LoadType): Int? =
+    private fun getPageIndex(loadType: LoadType, lastIndex: Int): Int? =
         when (loadType) {
-            LoadType.REFRESH -> 0
+            LoadType.REFRESH -> lastIndex
             LoadType.PREPEND -> null
-            LoadType.APPEND -> ++pageIndex
+            LoadType.APPEND -> lastIndex + 1
         }
 
     private suspend fun loadPage(
