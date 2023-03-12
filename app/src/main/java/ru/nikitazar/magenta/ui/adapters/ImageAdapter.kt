@@ -2,11 +2,13 @@ package ru.nikitazar.magenta.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.nikitazar.domain.models.Image
+import ru.nikitazar.magenta.R
 import ru.nikitazar.magenta.databinding.CardImageBinding
 import ru.nikitazar.magenta.ui.utils.load
 
@@ -19,6 +21,7 @@ class PageImageAdapter(
 ) : PagingDataAdapter<Image, ImageViewHolder>(ImageDiffCallback()) {
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         getItem(position)?.let { holder.bind(it) }
+        holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.image_list_anim)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
@@ -32,6 +35,7 @@ class ImageAdapter(
 ) : ListAdapter<Image, ImageViewHolder>(ImageDiffCallback()) {
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         getItem(position)?.let { holder.bind(it) }
+        holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.favorite_list_anim)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
