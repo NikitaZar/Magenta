@@ -1,7 +1,6 @@
 package ru.nikitazar.magenta.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,7 @@ class ImageListFragment : Fragment() {
 
     private lateinit var binding: FragmentImageListBinding
     private val viewModel: ImageListViewModel by viewModels()
+    private lateinit var adapter: PageImageAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,14 +33,17 @@ class ImageListFragment : Fragment() {
     ): View {
         binding = FragmentImageListBinding.inflate(inflater, container, false)
 
-        setupList()
+        setupListAdapter()
+        setupSwipeToRefresh(adapter)
+        observeImages(adapter)
+        observeErrors(requireActivity().findViewById(android.R.id.content), adapter)
         onBackPressed()
 
         return binding.root
     }
 
-    private fun setupList() {
-        val adapter = PageImageAdapter(object : ImageOnInteractionListener {
+    private fun setupListAdapter() {
+        adapter = PageImageAdapter(object : ImageOnInteractionListener {
             override fun onLike(image: Image) {
                 when (image.isFavorite) {
                     true -> viewModel.dislike(image.id)
@@ -51,9 +54,6 @@ class ImageListFragment : Fragment() {
         val footerAdapter = PageLoadStateAdapter()
         val adapterWithLoadState = adapter.withLoadStateFooter(footerAdapter)
         binding.list.adapter = adapterWithLoadState
-        observeImages(adapter)
-        setupSwipeToRefresh(adapter)
-        observeErrors(adapter)
     }
 
     private fun observeImages(adapter: PageImageAdapter) = lifecycleScope.launchWhenCreated {
@@ -63,12 +63,12 @@ class ImageListFragment : Fragment() {
         }
     }
 
-    private fun observeErrors(adapter: PageImageAdapter) {
+    private fun observeErrors(v: View, adapter: PageImageAdapter) {
         adapter.addLoadStateListener {
             if (it.refresh is LoadState.Error) {
                 val errText = getString(R.string.err_req_mes)
                 val btText = getString(R.string.err_bt_snack_bar_text)
-                Snackbar.make(binding.root, errText, Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(v, errText, Snackbar.LENGTH_INDEFINITE)
                     .setAction(btText) { adapter.refresh() }
                     .show()
             }
