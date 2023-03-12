@@ -28,7 +28,6 @@ class FavoriteFragment : Fragment() {
     ): View {
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
 
-        viewModel.getFavorite()
         setupList()
         onBackPressed()
 

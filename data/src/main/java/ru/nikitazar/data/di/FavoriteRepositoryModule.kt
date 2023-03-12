@@ -4,14 +4,14 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import ru.nikitazar.data.repository.ImageRepositoryImpl
-import ru.nikitazar.domain.repository.ImageRepository
+import ru.nikitazar.data.repository.FavoriteRepositoryImpl
+import ru.nikitazar.domain.repository.FavoriteRepository
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ImageRepositoryModule {
+abstract class FavoriteRepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindImageRepository(imp: ImageRepositoryImpl): ImageRepository
+    abstract fun bindFavoriteRepository(imp: FavoriteRepositoryImpl): FavoriteRepository
 }

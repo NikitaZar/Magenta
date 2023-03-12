@@ -6,6 +6,7 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import ru.nikitazar.data.api.ApiService
+import ru.nikitazar.data.db.dao.FavoriteDao
 import ru.nikitazar.data.db.dao.ImageDao
 import ru.nikitazar.data.db.dao.ImageRemoteKeyDao
 import ru.nikitazar.data.db.entities.ImageEntity
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class ImageRepositoryMediator @Inject constructor(
     private val api: ApiService,
     private val imageDao: ImageDao,
+    private val favoriteDao: FavoriteDao,
     private val remoteKeyDao: ImageRemoteKeyDao,
 ) : RemoteMediator<Int, ImageEntity>() {
 
@@ -28,7 +30,6 @@ class ImageRepositoryMediator @Inject constructor(
 
         val limit = state.config.pageSize
         val lastIndex = remoteKeyDao.max() ?: 0
-        Log.e("Mediator", "lastIndex=$lastIndex")
         val pageIndex = getPageIndex(
             loadType = loadType,
             lastIndex = lastIndex
@@ -38,7 +39,6 @@ class ImageRepositoryMediator @Inject constructor(
             val list: List<ImageEntity>
             when (loadType) {
                 LoadType.REFRESH -> {
-                    Log.e("Mediator", "pageIndex=$pageIndex limit=$limit")
                     list = loadPage(0, lastIndex + limit)
                     if (remoteKeyDao.isEmpty()) {
                         remoteKeyDao.insert(
@@ -57,9 +57,16 @@ class ImageRepositoryMediator @Inject constructor(
                             index = pageIndex
                         )
                     )
+
                 }
             }
             imageDao.insert(list)
+            imageDao.getList().forEach { image ->
+                when (favoriteDao.getAll().map { it.id }.contains(image.id)) {
+                    true -> imageDao.updateFavoriteById(image.id, true)
+                    false -> imageDao.updateFavoriteById(image.id, false)
+                }
+            }
             MediatorResult.Success(list.isEmpty())
         } catch (e: Exception) {
             Log.e("Mediator error", e.message.toString())

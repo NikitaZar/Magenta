@@ -1,16 +1,14 @@
 package ru.nikitazar.data.repository
 
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.map
 import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import ru.nikitazar.data.api.ApiService
 import ru.nikitazar.data.db.dao.ImageDao
 import ru.nikitazar.data.db.entities.ImageEntity
-import ru.nikitazar.data.db.entities.toDto
-import ru.nikitazar.data.errors.AppError
-import ru.nikitazar.data.errors.DbError
 import ru.nikitazar.domain.models.Image
 import ru.nikitazar.domain.repository.ImageRepository
 import javax.inject.Inject
@@ -37,15 +35,10 @@ class ImageRepositoryImpl @Inject constructor(
         .map { pagingData -> pagingData.map(ImageEntity::toDto) }
         .flowOn(Dispatchers.IO)
 
-    override suspend fun getFavorite(): List<Image> = dao.getFavorite().toDto()
+    override suspend fun getFavorite() = dao.getFavorite()
+        .map { favorite -> favorite.map { it.toDto() } }
+        .asFlow()
+        .flowOn(Dispatchers.IO)
 
-    override suspend fun like(id: Int) {
-        val image = dao.getById(id) ?: throw DbError
-        dao.insert(image.copy(isFavorite = true))
-    }
-
-    override suspend fun dislike(id: Int) {
-        val image = dao.getById(id) ?: throw DbError
-        dao.insert(image.copy(isFavorite = false))
-    }
+    override suspend fun updateFavoriteById(id: Int, isFavorite: Boolean) = dao.updateFavoriteById(id, isFavorite)
 }

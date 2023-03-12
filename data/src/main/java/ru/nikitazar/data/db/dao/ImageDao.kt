@@ -1,5 +1,6 @@
 package ru.nikitazar.data.db.dao
 
+import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.*
 import ru.nikitazar.data.db.entities.ImageEntity
@@ -19,9 +20,15 @@ interface ImageDao {
     @Query("DELETE FROM ImageEntity")
     suspend fun removeAll()
 
-    @Query("SELECT * FROM ImageEntity WHERE isFavorite = 1 ORDER BY id DESC")
-    fun getFavorite(): List<ImageEntity>
+    @Query("SELECT * FROM ImageEntity WHERE isFavorite = 1")
+    fun getFavorite(): LiveData<List<ImageEntity>>
 
     @Query("SELECT * FROM ImageEntity WHERE id = :id")
     suspend fun getById(id: Int): ImageEntity?
+
+    @Query("UPDATE ImageEntity SET isFavorite = :isFavorite WHERE id = :id")
+    suspend fun updateFavoriteById(id: Int, isFavorite: Boolean)
+
+    @Query("SELECT * FROM ImageEntity")
+    fun getList(): List<ImageEntity>
 }

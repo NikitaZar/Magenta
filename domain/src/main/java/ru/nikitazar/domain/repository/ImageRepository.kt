@@ -6,7 +6,6 @@ import ru.nikitazar.domain.models.Image
 
 interface ImageRepository {
     suspend fun getPage(): Flow<PagingData<Image>>
-    suspend fun getFavorite(): List<Image>
-    suspend fun like(id: Int)
-    suspend fun dislike(id: Int)
+    suspend fun getFavorite(): Flow<List<Image>>
+    suspend fun updateFavoriteById(id: Int, isFavorite: Boolean)
 }

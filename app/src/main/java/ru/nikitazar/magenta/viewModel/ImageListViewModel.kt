@@ -38,19 +38,18 @@ class ImageListViewModel @Inject constructor(
 
     fun like(id: Int) = viewModelScope.launch {
         likeUseCase.execute(id)
-        getFavorite()
     }
 
     fun dislike(id: Int) = viewModelScope.launch {
         dislikeUseCase.execute(id)
-        getFavorite()
     }
 
     val favoriteData: LiveData<List<Image>>
         get() = _favoriteData.asLiveData()
-    private val _favoriteData = MutableStateFlow(emptyList<Image>())
 
-    fun getFavorite() = viewModelScope.launch(Dispatchers.IO) {
-        _favoriteData.emit(getFavoriteUseCase.execute())
-    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _favoriteData = MutableStateFlow(emptyList<Image>())
+        .flatMapLatest {
+            getFavoriteUseCase.execute()
+        }.flowOn(Dispatchers.Default)
 }
