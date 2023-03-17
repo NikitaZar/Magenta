@@ -31,3 +31,4 @@
 - Hilt
 - Glide
 - Jetpack Navigation
+- JUnit 5
